@@ -1,6 +1,6 @@
 import 'dart:math' show max;
 
-import 'package:dart_console/src/ansi.dart';
+import 'package:dart_console2/src/ansi.dart';
 
 import 'enums.dart';
 import 'string_utils.dart';

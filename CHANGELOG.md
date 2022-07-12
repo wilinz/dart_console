@@ -1,3 +1,7 @@
+# 2.0.0
+- *BREAKING*: bump major version of ffi package to 2.0
+- upgraded to lints: 2.0.0, fixed a lint in termlib_unix
+
 ## 1.2.0
 
 - Update to latest ffi package

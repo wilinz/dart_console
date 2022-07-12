@@ -1,4 +1,4 @@
-import 'package:dart_console/src/ffi/termlib.dart';
+import 'package:dart_console2/src/ffi/termlib.dart';
 
 void main() {
   final termlib = TermLib();
