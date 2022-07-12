@@ -1,4 +1,4 @@
-import 'package:dart_console2/dart_console.dart';
+import 'package:dart_console2/dart_console2.dart';
 import 'package:dart_console2/src/ffi/termlib.dart';
 
 void main() {

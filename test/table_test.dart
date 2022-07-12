@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:dart_console2/dart_console.dart';
+import 'package:dart_console2/dart_console2.dart';
 
 const earlyPresidents = [
   [

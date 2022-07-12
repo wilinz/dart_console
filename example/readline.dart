@@ -5,7 +5,7 @@
 
 import 'dart:io';
 
-import 'package:dart_console2/dart_console.dart';
+import 'package:dart_console2/dart_console2.dart';
 
 final console = Console();
 
