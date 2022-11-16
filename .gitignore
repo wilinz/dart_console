@@ -28,4 +28,4 @@ coverage/
 **/golden.txt
 
 # Test scratchpad for development
-example/scratch.dart
+example/scratch.dart.failed_tracker
