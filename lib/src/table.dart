@@ -1,7 +1,6 @@
 import 'dart:math' show max;
 
-import 'package:dart_console2/src/ansi.dart';
-
+import '/src/ansi.dart';
 import 'consolecolor.dart';
 import 'string_utils.dart';
 import 'textalignment.dart';
