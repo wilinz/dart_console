@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:dart_console/dart_console.dart';
-
+import 'package:dart_console2/dart_console2.dart';
 import 'package:test/test.dart';
+
 import '../example/readme.dart' as readme_example;
 
 void main() {
