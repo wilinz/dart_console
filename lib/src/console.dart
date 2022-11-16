@@ -6,92 +6,28 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'ansi.dart';
-import 'enums.dart';
-
 import 'ffi/termlib.dart';
 import 'ffi/win/termlib_win.dart';
+
+import 'ansi.dart';
+import 'consolecolor.dart';
 import 'key.dart';
+import 'scrollbackbuffer.dart';
 import 'string_utils.dart';
+import 'textalignment.dart';
 
 /// A screen position, measured in rows and columns from the top-left origin
 /// of the screen. Coordinates are zero-based, and converted as necessary
 /// for the underlying system representation (e.g. one-based for VT-style
 /// displays).
-class Coordinate {
-  final int row;
-  final int col;
+class Coordinate extends Point<int> {
+  const Coordinate(int row, int col) : super(row, col);
 
-  const Coordinate(this.row, this.col);
-}
+  int get row => x;
+  int get col => y;
 
-/// The ScrollbackBuffer class is a utility for handling multi-line user
-/// input in readline(). It doesn't support history editing a la bash,
-/// but it should handle the most common use cases.
-class ScrollbackBuffer {
-  final lineList = <String>[];
-  int? lineIndex;
-  String? currentLineBuffer;
-  bool recordBlanks;
-
-  // called by Console.scolling()
-  ScrollbackBuffer({required this.recordBlanks});
-
-  /// Add a new line to the scrollback buffer. This would normally happen
-  /// when the user finishes typing/editing the line and taps the 'enter'
-  /// key.
-  void add(String buffer) {
-    // don't add blank line to scrollback history if !recordBlanks
-    if (buffer == '' && !recordBlanks) {
-      return;
-    }
-    lineList.add(buffer);
-    lineIndex = lineList.length;
-    currentLineBuffer = null;
-  }
-
-  /// Scroll 'up' -- Replace the user-input buffer with the contents of the
-  /// previous line. ScrollbackBuffer tracks which lines are the 'current'
-  /// and 'previous' lines. The up() method stores the current line buffer
-  /// so that the contents will not be lost in the event the user starts
-  /// typing/editing the line and then wants to review a previous line.
-  String up(String buffer) {
-    // Handle the case of the user tapping 'up' before there is a
-    // scrollback buffer to scroll through.
-    if (lineIndex == null) {
-      return buffer;
-    } else {
-      // Only store the current line buffer once while scrolling up
-      currentLineBuffer ??= buffer;
-      lineIndex = lineIndex! - 1;
-      lineIndex = lineIndex! < 0 ? 0 : lineIndex;
-      return lineList[lineIndex!];
-    }
-  }
-
-  /// Scroll 'down' -- Replace the user-input buffer with the contents of
-  /// the next line. The final 'next line' is the original contents of the
-  /// line buffer.
-  String? down() {
-    // Handle the case of the user tapping 'down' before there is a
-    // scrollback buffer to scroll through.
-    if (lineIndex == null) {
-      return null;
-    } else {
-      lineIndex = lineIndex! + 1;
-      lineIndex = lineIndex! > lineList.length ? lineList.length : lineIndex;
-      if (lineIndex == lineList.length) {
-        // Once the user scrolls to the bottom, reset the current line
-        // buffer so that up() can store it again: The user might have
-        // edited it between down() and up().
-        final temp = currentLineBuffer;
-        currentLineBuffer = null;
-        return temp;
-      } else {
-        return lineList[lineIndex!];
-      }
-    }
-  }
+  @override
+  String toString() => '($row, $col)';
 }
 
 /// A representation of the current console window.
@@ -102,12 +38,6 @@ class ScrollbackBuffer {
 /// A comprehensive set of demos of using the Console class can be found in the
 /// `examples/` subdirectory.
 class Console {
-  // We cache these values so we don't have to keep retrieving them. The
-  // downside is that the class isn't dynamically responsive to a resized
-  // console, but that's not unusual for console applications anyway.
-  int _windowWidth = 0;
-  int _windowHeight = 0;
-
   bool _isRawMode = false;
 
   final _termlib = TermLib();
@@ -195,74 +125,29 @@ class Console {
   void eraseCursorToEnd() => stdout.write(ansiEraseCursorToEnd);
 
   /// Returns the width of the current console window in characters.
-  ///
-  /// This command attempts to use the ioctl() system call to retrieve the
-  /// window width, and if that fails uses ANSI escape codes to identify its
-  /// location by walking off the edge of the screen and seeing what the
-  /// terminal clipped the cursor to.
-  ///
-  /// If unable to retrieve a valid width from either method, the method
-  /// throws an [Exception].
   int get windowWidth {
-    if (_windowWidth == 0) {
-      // try using ioctl() to give us the screen size
-      final width = _termlib.getWindowWidth();
-      if (width != -1) {
-        _windowWidth = width;
-      } else {
-        // otherwise, fall back to the approach of setting the cursor to beyond
-        // the edge of the screen and then reading back its actual position
-        final originalCursor = cursorPosition;
-        stdout.write(ansiMoveCursorToScreenEdge);
-        final newCursor = cursorPosition;
-        cursorPosition = originalCursor;
-
-        if (newCursor != null) {
-          _windowWidth = newCursor.col;
-        } else {
-          // we've run out of options; terminal is unsupported
-          throw Exception("Couldn't retrieve window width");
-        }
-      }
+    if (hasTerminal) {
+      return stdout.terminalColumns;
+    } else {
+      // Treat a window that has no terminal as if it is 80x25. This should be
+      // more compatible with CI/CD environments.
+      return 80;
     }
-
-    return _windowWidth;
   }
 
   /// Returns the height of the current console window in characters.
-  ///
-  /// This command attempts to use the ioctl() system call to retrieve the
-  /// window height, and if that fails uses ANSI escape codes to identify its
-  /// location by walking off the edge of the screen and seeing what the
-  /// terminal clipped the cursor to.
-  ///
-  /// If unable to retrieve a valid height from either method, the method
-  /// throws an [Exception].
   int get windowHeight {
-    if (_windowHeight == 0) {
-      // try using ioctl() to give us the screen size
-      final height = _termlib.getWindowHeight();
-      if (height != -1) {
-        _windowHeight = height;
-      } else {
-        // otherwise, fall back to the approach of setting the cursor to beyond
-        // the edge of the screen and then reading back its actual position
-        final originalCursor = cursorPosition;
-        stdout.write(ansiMoveCursorToScreenEdge);
-        final newCursor = cursorPosition;
-        cursorPosition = originalCursor;
-
-        if (newCursor != null) {
-          _windowHeight = newCursor.row;
-        } else {
-          // we've run out of options; terminal is unsupported
-          throw Exception("Couldn't retrieve window height");
-        }
-      }
+    if (hasTerminal) {
+      return stdout.terminalLines;
+    } else {
+      // Treat a window that has no terminal as if it is 80x25. This should be
+      // more compatible with CI/CD environments.
+      return 25;
     }
-
-    return _windowHeight;
   }
+
+  /// Whether there is a terminal attached to stdout.
+  bool get hasTerminal => stdout.hasTerminal;
 
   /// Hides the cursor.
   ///
@@ -363,7 +248,7 @@ class Console {
   /// enumeration. Depending on the console theme and background color,
   /// some colors may not offer a legible contrast against the background.
   void setForegroundColor(ConsoleColor foreground) {
-    stdout.write(ansiSetColor(ansiForegroundColors[foreground]!));
+    stdout.write(foreground.ansiSetForegroundColorSequence);
   }
 
   /// Sets the console background color to a named ANSI color.
@@ -372,7 +257,7 @@ class Console {
   /// enumeration. Depending on the console theme and background color,
   /// some colors may not offer a legible contrast against the background.
   void setBackgroundColor(ConsoleColor background) {
-    stdout.write(ansiSetColor(ansiBackgroundColors[background]!));
+    stdout.write(background.ansiSetBackgroundColorSequence);
   }
 
   /// Sets the foreground to one of 256 extended ANSI colors.
@@ -427,14 +312,14 @@ class Console {
   void resetColorAttributes() => stdout.write(ansiResetColor);
 
   /// Writes the text to the console.
-  void write(String text) => stdout.write(text);
+  void write(Object text) => stdout.write(text);
 
   /// Returns the current newline string.
   String get newLine => _isRawMode ? '\r\n' : '\n';
 
   /// Writes an error message to the console, with newline automatically
   /// appended.
-  void writeErrorLine(String text) {
+  void writeErrorLine(Object text) {
     stderr.write(text);
 
     // Even if we're in raw mode, we write '\n', since raw mode only applies
@@ -450,19 +335,20 @@ class Console {
   ///
   /// Text alignment operates based off the current window width, and pads
   /// the remaining characters with a space character.
-  void writeLine([String? text, TextAlignment alignment = TextAlignment.left]) {
+  void writeLine([Object? text, TextAlignment alignment = TextAlignment.left]) {
     final int width = windowWidth;
     if (text != null) {
-      writeAligned(text, width, alignment);
+      writeAligned(text.toString(), width, alignment);
     }
     stdout.writeln();
   }
 
   /// Writes a quantity of text to the console with padding to the given width.
-  void writeAligned(String text,
+  void writeAligned(Object text,
       [int? width, TextAlignment alignment = TextAlignment.left]) {
-    stdout.write(
-        text.alignText(width: width ?? text.length, alignment: alignment));
+    final textAsString = text.toString();
+    stdout.write(textAsString.alignText(
+        width: width ?? textAsString.length, alignment: alignment));
   }
 
   /// Reads a single key from the input, including a variety of control
@@ -648,7 +534,7 @@ class Console {
       {bool cancelOnBreak = false,
       bool cancelOnEscape = false,
       bool cancelOnEOF = false,
-      Function(String text, Key lastPressed)? callback}) {
+      void Function(String text, Key lastPressed)? callback}) {
     var buffer = '';
     var index = 0; // cursor position relative to buffer, not screen
 

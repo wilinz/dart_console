@@ -2,6 +2,10 @@
 //
 // Dart representations of functions and constants used in termios.h
 
+// Ignore these lints, since these are UNIX identifiers that we're replicating
+//
+// ignore_for_file: non_constant_identifier_names, constant_identifier_names, camel_case_types
+
 import 'dart:ffi';
 
 // INPUT FLAGS
@@ -50,7 +54,7 @@ const int EXTPROC = 0x00000800; // external processing
 const int TOSTOP = 0x00400000; // stop background jobs from output
 const int FLUSHO = 0x00800000; // output being flushed (state)
 const int NOKERNINFO = 0x02000000; // no kernel output from VSTATUS
-const int PENDIN = 0x20000000; // XXX retype pending input (state)
+const int PENDIN = 0x20000000; // retype pending input (state)
 const int NOFLSH = 0x80000000; // don't flush after interrupt
 
 const int TCSANOW = 0; // make change immediate
@@ -61,9 +65,16 @@ const int VMIN = 16; // minimum number of characters to receive
 const int VTIME = 17; // time in 1/10s before returning
 
 // typedef unsigned long   tcflag_t;
+typedef tcflag_t = UnsignedLong;
+
 // typedef unsigned char   cc_t;
+typedef cc_t = UnsignedChar;
+
 // typedef unsigned long   speed_t;
+typedef speed_t = UnsignedLong;
+
 // #define NCCS            20
+const _NCCS = 20;
 
 // struct termios {
 // 	tcflag_t        c_iflag;        /* input flags */
@@ -75,31 +86,31 @@ const int VTIME = 17; // time in 1/10s before returning
 // 	speed_t         c_ospeed;       /* output speed */
 // };
 class TermIOS extends Struct {
-  @IntPtr()
+  @tcflag_t()
   external int c_iflag;
-  @IntPtr()
+  @tcflag_t()
   external int c_oflag;
-  @IntPtr()
+  @tcflag_t()
   external int c_cflag;
-  @IntPtr()
+  @tcflag_t()
   external int c_lflag;
 
-  @Array(20)
-  external Array<Uint8> c_cc;
+  @Array(_NCCS)
+  external Array<cc_t> c_cc;
 
-  @IntPtr()
+  @speed_t()
   external int c_ispeed;
-  @IntPtr()
+  @speed_t()
   external int c_ospeed;
 }
 
 // int tcgetattr(int, struct termios *);
-typedef tcgetattrNative = Int32 Function(
+typedef TCGetAttrNative = Int32 Function(
     Int32 fildes, Pointer<TermIOS> termios);
-typedef tcgetattrDart = int Function(int fildes, Pointer<TermIOS> termios);
+typedef TCGetAttrDart = int Function(int fildes, Pointer<TermIOS> termios);
 
 // int tcsetattr(int, int, const struct termios *);
-typedef tcsetattrNative = Int32 Function(
+typedef TCSetAttrNative = Int32 Function(
     Int32 fildes, Int32 optional_actions, Pointer<TermIOS> termios);
-typedef tcsetattrDart = int Function(
+typedef TCSetAttrDart = int Function(
     int fildes, int optional_actions, Pointer<TermIOS> termios);

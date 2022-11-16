@@ -1,17 +1,21 @@
+// Ignore these lints, since these are UNIX identifiers that we're replicating
+//
+// ignore_for_file: non_constant_identifier_names, constant_identifier_names
+
 import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
 
 // int tcgetattr(int, struct termios *);
-typedef tcgetattrNative = Int32 Function(
+typedef TCGetAttrNative = Int32 Function(
     Int32 fildes, Pointer<TermIOS> termios);
-typedef tcgetattrDart = int Function(int fildes, Pointer<TermIOS> termios);
+typedef TCGetAttrDart = int Function(int fildes, Pointer<TermIOS> termios);
 
 // int tcsetattr(int, int, const struct termios *);
-typedef tcsetattrNative = Int32 Function(
+typedef TCSetAttrNative = Int32 Function(
     Int32 fildes, Int32 optional_actions, Pointer<TermIOS> termios);
-typedef tcsetattrDart = int Function(
+typedef TCSetAttrDart = int Function(
     int fildes, int optional_actions, Pointer<TermIOS> termios);
 
 const STDIN_FILENO = 0;
@@ -64,7 +68,7 @@ const int EXTPROC = 0x00000800; // external processing
 const int TOSTOP = 0x00400000; // stop background jobs from output
 const int FLUSHO = 0x00800000; // output being flushed (state)
 const int NOKERNINFO = 0x02000000; // no kernel output from VSTATUS
-const int PENDIN = 0x20000000; // XXX retype pending input (state)
+const int PENDIN = 0x20000000; // retype pending input (state)
 const int NOFLSH = 0x80000000; // don't flush after interrupt
 
 const int TCSANOW = 0; // make change immediate
@@ -113,9 +117,9 @@ void main() {
       : DynamicLibrary.open('libc-2.28.so');
 
   final tcgetattr =
-      libc.lookupFunction<tcgetattrNative, tcgetattrDart>('tcgetattr');
+      libc.lookupFunction<TCGetAttrNative, TCGetAttrDart>('tcgetattr');
   final tcsetattr =
-      libc.lookupFunction<tcsetattrNative, tcsetattrDart>('tcsetattr');
+      libc.lookupFunction<TCSetAttrNative, TCSetAttrDart>('tcsetattr');
 
   final origTermIOS = calloc<TermIOS>();
   var result = tcgetattr(STDIN_FILENO, origTermIOS);

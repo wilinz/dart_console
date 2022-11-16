@@ -16,7 +16,6 @@ List<Function> demoScreens = <Function>[
     console.clearScreen();
 
     final row = (console.windowHeight / 2).round() - 1;
-    final progressBarWidth = max(console.windowWidth - 10, 10);
 
     console.cursorPosition = Coordinate(row - 2, 0);
     console.writeLine('L O A D I N G', TextAlignment.center);
@@ -27,13 +26,19 @@ List<Function> demoScreens = <Function>[
 
     console.hideCursor();
 
-    for (var i = 0; i <= 50; i++) {
-      console.cursorPosition = Coordinate(row, 4);
-      final progress = (i / 50 * progressBarWidth).ceil();
-      final bar = '[${'#' * progress}${' ' * (progressBarWidth - progress)}]';
-      console.write(bar);
-      sleep(const Duration(milliseconds: 40));
+    final progressBar = ProgressBar(
+      maxValue: 100,
+      startCoordinate: Coordinate(row, 4),
+      barWidth: max(console.windowWidth - 10, 10),
+      showSpinner: false,
+      tickCharacters: ['#'],
+    );
+
+    for (var i = 0; i < 100; i++) {
+      progressBar.tick();
+      sleep(const Duration(milliseconds: 20));
     }
+    progressBar.complete();
 
     console.showCursor();
 
@@ -126,7 +131,7 @@ List<Function> demoScreens = <Function>[
     console.writeLine();
 
     final calendar = Calendar.now();
-    console.write(calendar.render());
+    console.write(calendar);
 
     console.writeLine();
 
@@ -134,14 +139,13 @@ List<Function> demoScreens = <Function>[
       ..borderColor = ConsoleColor.blue
       ..borderStyle = BorderStyle.rounded
       ..borderType = BorderType.horizontal
-      ..addColumnDefinition(header: 'Number', alignment: TextAlignment.center)
-      ..addColumnDefinition(
-          header: 'Presidency', alignment: TextAlignment.right)
-      ..addColumnDefinition(header: 'President')
-      ..addColumnDefinition(header: 'Party')
-      ..addRows(earlyPresidents)
+      ..insertColumn(header: 'Number', alignment: TextAlignment.center)
+      ..insertColumn(header: 'Presidency', alignment: TextAlignment.right)
+      ..insertColumn(header: 'President')
+      ..insertColumn(header: 'Party')
+      ..insertRows(earlyPresidents)
       ..title = 'Early Presidents of the United States';
-    console.write(table.render());
+    console.write(table);
   }),
 
   // SCREEN 6: Twinkling stars

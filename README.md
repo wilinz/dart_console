@@ -2,6 +2,8 @@ A Dart library for building console applications.
 
 [![pub package](https://img.shields.io/pub/v/dart_console.svg)](https://pub.dev/packages/dart_console)
 [![Language](https://img.shields.io/badge/language-Dart-blue.svg)](https://dart.dev)
+![Build](https://github.com/timsneath/dart_console/workflows/Build/badge.svg)
+[![codecov](https://codecov.io/gh/timsneath/dart_console/branch/main/graph/badge.svg?token=2N19H7OHZJ)](https://codecov.io/gh/timsneath/dart_console)
 
 This library contains a variety of useful functions for console application
 development, including:
@@ -13,7 +15,7 @@ development, including:
   keyboard input processing than the default `dart:io` library.
 - Reading keys and control sequences from the keyboard
 - Writing aligned text to the screen
-- Tabular data display (preview)
+- Tabular data display, including month calendar
 
 The library has been used to implement a [Dart][dart] version of the
 [Kilo][kilo] text editor; when compiled with Dart it results in a self-contained
@@ -63,12 +65,14 @@ More comprehensive demos of the `Console` class are provided, as follows:
 | `readline.dart` | Sample command-line interface / REPL |
 | `kilo.dart` | Rudimentary text editor |
 | `life.dart` | Game of Life |
+| `table.dart` | Demonstrates tabular data display |
+| `calendar.dart` | Prints a monthly calendar on the screen |
 
 ## Acknowledgements
 
 Special thanks to [Matt Sullivan (@mjohnsullivan)][@mjohnsullivan] and [Samir
 Jindel (@sjindel-google)][@sjindel-google] for their help in explaining FFI to
-me when it was first introduced and still undocumented. 
+me when it was first introduced and still undocumented.
 
 Thanks to [@erf] for contributing the Game of Life example.
 

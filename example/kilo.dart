@@ -434,7 +434,7 @@ void editorSetStatusMessage(String message) {
 }
 
 String? editorPrompt(String message,
-    [Function(String text, Key lastPressed)? callback]) {
+    [void Function(String text, Key lastPressed)? callback]) {
   final originalCursorRow = cursorRow;
 
   editorSetStatusMessage(message);

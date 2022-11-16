@@ -1,14 +1,27 @@
-# 2.0.0
-- *BREAKING*: bump major version of ffi package to 2.0
-- upgraded to lints: 2.0.0, fixed a lint in termlib_unix
+## 1.1.2
 
-## 1.2.0
+- Remove ioctl and rely on ANSI escape sequences instead. Increases
+  compatibility on non-interactive terminals and fixes ARM64 compatibility
+  issue.
 
-- Update to latest ffi package
+## 1.1.1
 
-## 1.1.0-pre.0
+- Update some lints and platform specifications to satisfy pana.
 
-- Add tabular display and calendar support. 
+## 1.1.0
+
+- Add table class for tabulated text (and demo `example/table.dart`)
+- Add calendar display, building on table primitives (and demo
+  `example/calendar.dart`)
+- Update to lints package and fix various issues.
+- Add support for faint and strikethru font styles.
+- Add support for testing whether the terminal supports emojis.
+- Add support for resizing console window (thanks @FaFre)
+- Add `writeAligned` function for center- and right-justified text.
+- Fix error with forward deleting last character on a line (thanks
+  @mhdolatabadi)
+- Bump dependencies and support package:ffi 2.x
+- Add lots of tests, including Github Actions automation.
 
 ## 1.0.0
 
