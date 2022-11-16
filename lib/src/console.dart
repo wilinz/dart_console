@@ -6,11 +6,10 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'ffi/termlib.dart';
-import 'ffi/win/termlib_win.dart';
-
 import 'ansi.dart';
 import 'consolecolor.dart';
+import 'ffi/termlib.dart';
+import 'ffi/win/termlib_win.dart';
 import 'key.dart';
 import 'scrollbackbuffer.dart';
 import 'string_utils.dart';
@@ -206,7 +205,7 @@ class Console {
     }
     rawMode = false;
 
-    if (result[0] != '\x1b') {
+    if (result.isEmpty || result[0] != '\x1b') {
       print(' result: $result  result.length: ${result.length}');
       return null;
     }
