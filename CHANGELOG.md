@@ -1,3 +1,6 @@
+# 3.0.0-beta.1
+- beta release for dart 3.x compatability
+
 # 2.0.1
 - Fix: when running in a docker container cursorPosition can return an emtpy result when reading from stdin. Added check for empty result and return null as we do if the \x1b escape is missing.
 
