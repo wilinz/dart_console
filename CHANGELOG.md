@@ -1,3 +1,6 @@
+# 2.1.0
+- upgraded to intl 0.18.0
+
 # 2.0.1
 - Fix: when running in a docker container cursorPosition can return an emtpy result when reading from stdin. Added check for empty result and return null as we do if the \x1b escape is missing.
 
