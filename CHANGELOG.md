@@ -1,3 +1,7 @@
+# 3.1.1
+- reduced the win32 range and restore win32 constanst to values
+deprecated vy win32 5.4.0. Will leave the move to win 5.4.0 to a later date.
+
 # 3.1.0
 - opened up the win32 package version range.
 
