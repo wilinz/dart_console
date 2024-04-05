@@ -1,3 +1,6 @@
+# 3.1.0
+- opened up the win32 package version range.
+
 # 3.0.0-beta.1
 - beta release for dart 3.x compatability
 
